@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Моя Мойя</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            background-image: url('https://lh3.googleusercontent.com/d/1kiT2_3EAt5BQbL123_wrKJldGl9Ge6nY'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: #db2777; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        }
+        .pink-glow { text-shadow: 0 0 10px #f472b6; }
+        /* Эффект матового стекла с 40% прозрачности (60% непрозрачности) */
+        .glass-panel {
+            background-color: rgba(255, 255, 255, 0.60) !important;
+            backdrop-filter: blur(8px);
+        }
+        /* Анимация пульсации для глянца полосы опыта */
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .bar-shine {
+            animation: shine 3s infinite linear;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center md:items-end justify-center min-h-screen p-4 md:pr-[10vw]">
+    
+    <!-- Аудиоэлемент с резервным источником -->
+    <audio id="bgMusic" loop src="https://drive.google.com/uc?export=download&id=1rLUlmWzbA03I6kbTxIhrXq9YE2-OC-GR"></audio>
+
+    <div class="glass-panel p-6 rounded-3xl shadow-2xl border-4 border-pink-500 text-center w-full max-w-md my-4 relative">
+        
+        <!-- Кнопочка управления музыкой -->
+        <button id="musicToggle" class="absolute top-4 right-4 bg-pink-500/20 hover:bg-pink-500/40 text-pink-700 w-8 h-8 rounded-full flex items-center justify-center transition border border-pink-400/50 shadow-md">
+            <span id="musicIcon" class="text-sm">🎵</span>
+        </button>
+
+        <h1 class="text-2xl font-bold mb-1 pink-glow font-serif">Путь к Мойе 👩🏼💖</h1>
+        
+        <!-- Красивая плашка с датой старта -->
+        <div class="text-[11px] font-bold text-pink-700 bg-pink-100/80 inline-block px-3 py-1 rounded-full mb-4">
+            Накоплено с 14 июня 2026 года 😎
+        </div>
+        
+        <div class="mb-4 space-y-3">
+            <div id="counter" class="text-4xl font-mono font-bold text-pink-600">Загрузка...</div>
+            <div class="bg-pink-50/70 p-3 rounded-2xl border-2 border-pink-100">
+                <div id="counterUah" class="text-4xl font-mono font-bold text-pink-600">Загрузка...</div>
+            </div>
+        </div>
+
+        <!-- Полоса опыта (Warcraft 3 XP Bar Style) -->
+        <div class="mb-4 px-1">
+            <div class="flex justify-between text-[10px] font-bold text-pink-700 mb-1">
+                <span>Она уже ищет тебя 🙂💫</span>
+                <span id="xpPercent">0.0000%</span>
+            </div>
+            <!-- Рамка полосы в стиле Warcraft 3 -->
+            <div class="w-full bg-pink-950/40 rounded-lg h-6 p-[3px] border-2 border-pink-600 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] overflow-hidden relative">
+                <!-- Заполняющийся бар с сочным градиентом -->
+                <div id="xpBar" class="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 rounded-md transition-all duration-1000 shadow-[0_0_10px_#ec4899] relative overflow-hidden" style="width: 0%">
+                    <!-- Глянцевый анимированный блик -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent w-1/2 h-full bar-shine"></div>
+                </div>
+                <!-- Верхнее стеклянное наложение для объёма -->
+                <div class="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent h-1/2 pointer-events-none"></div>
+            </div>
+        </div>
+        
+        <div id="message" class="text-sm italic text-pink-500 mb-4 h-12 flex items-center justify-center font-bold px-2">
+            Юлик, скоро ты трахнешь свою сучку 🍌🍓💞✨
+        </div>
+
+        <button id="startBtn" class="w-full bg-pink-500 text-white py-3 rounded-xl hover:bg-pink-600 transition mb-4 font-bold shadow-lg shadow-pink-200 hidden">НАЧАТЬ ФАРМ 🚀</button>
+
+        <div class="mt-2 border-t border-pink-100 pt-3">
+            <label class="block text-xs font-bold mb-1.5">Добавить свои сбережения:</label>
+            <div class="flex gap-2 mb-3">
+                <div class="w-20">
+                    <span class="text-[9px] uppercase tracking-wider text-pink-400 font-bold block mb-1">Курс ₴/$</span>
+                    <input type="number" id="rateInput" step="0.01" class="w-full p-2 border-2 border-pink-200 rounded-xl text-pink-600 font-bold text-center focus:outline-pink-400 text-xs">
+                </div>
+                <div class="flex-1">
+                    <span class="text-[9px] uppercase tracking-wider text-pink-400 font-bold block mb-1">Сумма вклада</span>
+                    <input type="number" id="manualInput" value="0" min="0" step="any" class="w-full p-2 border-2 border-pink-200 rounded-xl focus:outline-pink-400 text-pink-600 font-bold text-center text-xs">
+                </div>
+                <div class="w-24">
+                    <span class="text-[9px] uppercase tracking-wider text-pink-400 font-bold block mb-1">Валюта</span>
+                    <select id="currencySelect" class="w-full p-2 border-2 border-pink-200 rounded-xl focus:outline-pink-400 text-pink-600 font-bold bg-white text-xs">
+                        <option value="USD">$ USD</option>
+                        <option value="UAH">₴ UAH</option>
+                    </select>
+                </div>
+            </div>
+            <button id="addSavingsBtn" class="w-full bg-pink-400 text-white py-2 rounded-xl hover:bg-pink-500 transition text-sm font-bold shadow-md">Добавить вклад 💖</button>
+            
+            <div class="text-[11px] text-pink-400 mt-2 font-semibold">
+                Твои личные вклады: <span id="manualTotalUsd">0.00</span> $ (<span id="manualTotalUah">0.00</span> ₴)
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyBgrOFMkMZ9aV3Kp5ISSdrvpfwO2NsJJEQ",
+          authDomain: "super-girl-ac3f3.firebaseapp.com",
+          projectId: "super-girl-ac3f3",
+          storageBucket: "super-girl-ac3f3.firebasestorage.app",
+          messagingSenderId: "992475956281",
+          appId: "1:992475956281:web:03430bd128a37a3566b9e8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const targetDrop = 225000;
+        const barLimit = 250000; // Лимит полоски опыта для 100%
+        const totalDuration = 5 * 365.25 * 24 * 60 * 60 * 1000;
+        
+        let startDate = null;
+        let manualSavings = 0;
+        let currentRate = 44.76;
+
+        const rateInput = document.getElementById('rateInput');
+        const startBtn = document.getElementById('startBtn');
+        const addSavingsBtn = document.getElementById('addSavingsBtn');
+
+        const mainDocRef = doc(db, "data", "main");
+
+        // Логика фоновой музыки
+        const bgMusic = document.getElementById('bgMusic');
+        const musicToggle = document.getElementById('musicToggle');
+        const musicIcon = document.getElementById('musicIcon');
+        let musicStarted = false;
+
+        function playMusicSafe() {
+            bgMusic.play().then(() => {
+                musicStarted = true;
+                musicIcon.innerText = '🔊';
+            }).catch((err) => {
+                console.log("Ожидание клика для воспроизведения: ", err);
+            });
+        }
+
+        // Если Google Диск выдает ошибку загрузки, переключаемся на локальный файл music.mp3
+        bgMusic.addEventListener('error', () => {
+            console.log("Ошибка потока с Диска. Пробуем воспроизвести локальный music.mp3");
+            if (bgMusic.getAttribute('src') !== 'Taylor Swift - The Fate of Ophelia.mp3') {
+                bgMusic.setAttribute('src', 'Taylor Swift - The Fate of Ophelia.mp3');
+                bgMusic.load();
+                if (musicStarted || !bgMusic.paused) {
+                    bgMusic.play().catch(e => console.log("Локальный файл Taylor Swift - The Fate of Ophelia.mp3 не найден"));
+                }
+            }
+        });
+
+        // Запуск музыки при первом клике пользователя по экрану
+        document.body.addEventListener('click', () => {
+            if (!musicStarted) {
+                playMusicSafe();
+            }
+        }, { once: true });
+
+        // Ручное управление кнопкой музыки
+        musicToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (bgMusic.paused) {
+                playMusicSafe();
+            } else {
+                bgMusic.pause();
+                musicIcon.innerText = '🔇';
+            }
+        });
+
+        // Слушаем изменения в базе в реальном времени
+        onSnapshot(mainDocRef, async (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                startDate = data.startDate || null;
+                manualSavings = parseFloat(data.manualSavings) || 0;
+                currentRate = parseFloat(data.currentRate) || 44.76;
+                rateInput.value = currentRate.toFixed(2);
+                
+                if (startDate) {
+                    startBtn.classList.add('hidden');
+                } else {
+                    startBtn.classList.remove('hidden');
+                }
+                updateCounter();
+            }
+        });
+
+        function updateCounter() {
+            const rate = parseFloat(rateInput.value) || 44.76;
+            document.getElementById('manualTotalUsd').innerText = manualSavings.toFixed(2);
+            document.getElementById('manualTotalUah').innerText = (manualSavings * rate).toFixed(2);
+            
+            if (!startDate) {
+                document.getElementById('counter').innerText = '0.00 $';
+                document.getElementById('counterUah').innerText = '0.00 ₴';
+                document.getElementById('xpBar').style.width = '0%';
+                document.getElementById('xpPercent').innerText = '0.0000%';
+                return;
+            }
+            
+            const progress = Math.min((Date.now() - startDate) / totalDuration, 1);
+            const currentSavings = (progress * targetDrop) + manualSavings;
+            document.getElementById('counter').innerText = currentSavings.toFixed(2) + ' $';
+            document.getElementById('counterUah').innerText = (currentSavings * rate).toFixed(2) + ' ₴';
+
+            // Расчет опыта: теперь 100% равен $250 000
+            const xpPct = (currentSavings / barLimit) * 100;
+            document.getElementById('xpBar').style.width = `${Math.min(xpPct, 100).toFixed(6)}%`;
+            document.getElementById('xpPercent').innerText = `${xpPct.toFixed(6)}%`;
+        }
+
+        startBtn.addEventListener('click', async () => {
+            await setDoc(mainDocRef, { startDate: Date.now(), manualSavings, currentRate }, { merge: true });
+        });
+
+        rateInput.addEventListener('input', async () => {
+            await setDoc(mainDocRef, { currentRate: parseFloat(rateInput.value) }, { merge: true });
+            updateCounter();
+        });
+
+        addSavingsBtn.addEventListener('click', async () => {
+            const amount = parseFloat(document.getElementById('manualInput').value) || 0;
+            if (amount <= 0) return;
+            const currency = document.getElementById('currencySelect').value;
+            const addedUsd = currency === 'UAH' ? amount / (parseFloat(rateInput.value) || 44.76) : amount;
+            manualSavings += addedUsd;
+            await setDoc(mainDocRef, { manualSavings }, { merge: true });
+            document.getElementById('manualInput').value = 0;
+            updateCounter();
+        });
+
+        setInterval(updateCounter, 1000);
+    </script>
+</body>
+</html>
