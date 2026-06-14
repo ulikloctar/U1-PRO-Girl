@@ -16,9 +16,10 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
         }
         .pink-glow { text-shadow: 0 0 10px #f472b6; }
+        /* Эффект матового стекла (50% прозрачности + blur 4px) */
         .glass-panel {
-            background-color: rgba(255, 255, 255, 0.60) !important;
-            backdrop-filter: blur(8px);
+            background-color: rgba(255, 255, 255, 0.50) !important;
+            backdrop-filter: blur(4px);
         }
         @keyframes shine {
             0% { transform: translateX(-100%); }
@@ -27,13 +28,22 @@
         .bar-shine {
             animation: shine 3s infinite linear;
         }
+        /* Убираем стрелочки для идеальной центровки */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
     </style>
 </head>
 <body class="flex flex-col items-center md:items-end justify-center min-h-screen p-4 md:pr-[10vw]">
     
     <audio id="bgMusic" loop src="https://ulikloctar.github.io/Moya/Taylor Swift - The Fate of Ophelia.mp3"></audio>
 
-    <div class="glass-panel p-6 rounded-3xl shadow-2xl border-4 border-pink-500 text-center w-full max-w-md my-4 relative">
+    <div class="glass-panel p-6 rounded-3xl shadow-2xl border-4 border-pink-500 text-center w-full max-w-md my-4 relative max-h-[90vh] overflow-y-auto">
         
         <button id="musicToggle" class="absolute top-4 right-4 bg-pink-500/20 hover:bg-pink-500/40 text-pink-700 w-8 h-8 rounded-full flex items-center justify-center transition border border-pink-400/50 shadow-md">
             <span id="musicIcon" class="text-sm">🎵</span>
@@ -84,7 +94,7 @@
                 </div>
                 <div class="w-24">
                     <span class="text-[9px] uppercase tracking-wider text-pink-400 font-bold block mb-1">Валюта</span>
-                    <select id="currencySelect" class="w-full p-2 border-2 border-pink-200 rounded-xl focus:outline-pink-400 text-pink-600 font-bold bg-white text-xs">
+                    <select id="currencySelect" class="w-full p-2 border-2 border-pink-200 rounded-xl focus:outline-pink-400 text-pink-600 font-bold bg-white text-xs text-center">
                         <option value="USD">$ USD</option>
                         <option value="UAH">₴ UAH</option>
                     </select>
@@ -193,6 +203,7 @@
 
         rateInput.addEventListener('input', async () => {
             await setDoc(mainDocRef, { currentRate: parseFloat(rateInput.value) }, { merge: true });
+            updateCounter();
         });
 
         addSavingsBtn.addEventListener('click', async () => {
@@ -200,8 +211,10 @@
             if (amount <= 0) return;
             const currency = document.getElementById('currencySelect').value;
             const addedUsd = currency === 'UAH' ? amount / (parseFloat(rateInput.value) || 44.76) : amount;
-            await setDoc(mainDocRef, { manualSavings: manualSavings + addedUsd }, { merge: true });
+            manualSavings += addedUsd;
+            await setDoc(mainDocRef, { manualSavings }, { merge: true });
             document.getElementById('manualInput').value = 0;
+            updateCounter();
         });
 
         setInterval(updateCounter, 1000);
