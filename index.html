@@ -28,6 +28,9 @@
         .bar-shine {
             animation: shine 3s infinite linear;
         }
+        #authStatusText {
+            white-space: pre-line;
+        }
         /* Убираем стрелочки для идеальной центровки */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
@@ -41,10 +44,19 @@
 </head>
 <body class="flex flex-col items-center md:items-end justify-center min-h-screen p-4 md:pr-[10vw]">
     
+    <!-- Видеофон (скрыт по умолчанию) -->
+    <video id="bgVideo" loop muted playsinline class="fixed inset-0 w-full h-full object-cover -z-10 hidden"></video>
+
     <audio id="bgMusic" loop src="https://ulikloctar.github.io/Moya/Taylor Swift - The Fate of Ophelia.mp3"></audio>
 
     <div class="glass-panel p-6 rounded-3xl shadow-2xl border-4 border-pink-500 text-center w-full max-w-md my-4 relative max-h-[90vh] overflow-y-auto">
         
+        <!-- Кнопка переключения видео слева -->
+        <button id="videoToggle" class="absolute top-4 left-4 bg-pink-500/20 hover:bg-pink-500/40 text-pink-700 w-8 h-8 rounded-full flex items-center justify-center transition border border-pink-400/50 shadow-md">
+            <span id="videoIcon" class="text-sm">🎬</span>
+        </button>
+
+        <!-- Кнопка музыки справа -->
         <button id="musicToggle" class="absolute top-4 right-4 bg-pink-500/20 hover:bg-pink-500/40 text-pink-700 w-8 h-8 rounded-full flex items-center justify-center transition border border-pink-400/50 shadow-md">
             <span id="musicIcon" class="text-sm">🎵</span>
         </button>
@@ -150,7 +162,13 @@
         const bgMusic = document.getElementById('bgMusic');
         const musicToggle = document.getElementById('musicToggle');
         const musicIcon = document.getElementById('musicIcon');
-        let musicStarted = false;
+
+        const bgVideo = document.getElementById('bgVideo');
+        const videoToggle = document.getElementById('videoToggle');
+        const videoIcon = document.getElementById('videoIcon');
+
+        // Ссылка на видеофайл (ты можешь заменить эту ссылку на любое своё видео!)
+        bgVideo.src = "https://assets.mixkit.co/videos/preview/mixkit-beautiful-dreamy-pink-clouds-background-41481-large.mp4";
 
         // Показываем статус авторизации тихонько внизу
         onAuthStateChanged(auth, (user) => {
@@ -161,12 +179,12 @@
                 authStatusText.innerText = "Вошел посторонний аккаунт. Доступ закрыт ⛔";
                 authStatusText.className = "text-[10px] text-red-500 mt-2 font-bold transition-all";
             } else {
-                authStatusText.innerText = ""; // Фраза убрана для красоты по твоей просьбе
+                authStatusText.innerText = "";
                 authStatusText.className = "text-[10px] text-pink-400 mt-2 font-bold transition-all";
             }
         });
 
-        // Функция-защитник: проверяет авторизацию Юлика, а если её нет — логинит и сразу делает то, что ты нажал
+        // Функция-защитник: проверяет авторизацию Юлика
         async function runWithAuth(action) {
             let user = auth.currentUser;
             if (!user) {
@@ -186,29 +204,35 @@
             if (user && user.email === "ulikloctar@gmail.com") {
                 action();
             } else {
-                authStatusText.innerText = "Ты не Юлик! Редактировать нельзя! 👩🏼😡";
+                authStatusText.innerText = "Ты не Юлик! Редактировать нельзя! 👩🏼😡\nРедактировать можно только Юлику! 😎";
                 authStatusText.className = "text-[10px] text-red-600 mt-2 font-bold";
             }
         }
 
-        function playMusicSafe() {
-            bgMusic.play().then(() => {
-                musicStarted = true;
-                musicIcon.innerText = '🔊';
-            }).catch((err) => console.log("Музыка ждет клика"));
-        }
-
-        document.body.addEventListener('click', () => {
-            if (!musicStarted) playMusicSafe();
-        }, { once: true });
-
+        // Логика кнопки музыки (теперь строго по клику)
         musicToggle.addEventListener('click', (e) => {
             e.stopPropagation();
             if (bgMusic.paused) {
-                playMusicSafe();
+                bgMusic.play().then(() => {
+                    musicIcon.innerText = '🔊';
+                }).catch((err) => console.log("Музыка не смогла запуститься:", err));
             } else {
                 bgMusic.pause();
                 musicIcon.innerText = '🔇';
+            }
+        });
+
+        // Логика переключения видео
+        videoToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (bgVideo.classList.contains('hidden')) {
+                bgVideo.classList.remove('hidden');
+                bgVideo.play().catch(err => console.log("Видео не запустилось:", err));
+                videoIcon.innerText = '🖼️'; // Меняем иконку на картинку
+            } else {
+                bgVideo.classList.add('hidden');
+                bgVideo.pause();
+                videoIcon.innerText = '🎬'; // Меняем иконку обратно на видео
             }
         });
 
