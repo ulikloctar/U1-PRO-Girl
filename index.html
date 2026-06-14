@@ -177,7 +177,7 @@
                     user = result.user;
                 } catch (error) {
                     console.error("Ошибка авторизации: ", error);
-                    authStatusText.innerText = "Редактировать можно только Юлику! 😎";
+                    authStatusText.innerText = "Ты не Юлик! Редактировать нельзя! 👩🏼😡\nРедактировать можно только Юлику! 😎";
                     authStatusText.className = "text-[10px] text-red-500 mt-2 font-bold";
                     return;
                 }
